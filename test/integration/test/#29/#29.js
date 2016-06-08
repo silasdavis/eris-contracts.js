@@ -17,7 +17,7 @@ var sub = function(err, subObj){};
 var setup2 = function(done){
 
   createDb().spread(function (url, validator) {
-    
+
     dbUrl = url;
 
     accountData = {
@@ -31,15 +31,19 @@ var setup2 = function(done){
   })
 }
 
-var setup = function(done){
-
-  dbUrl = "localhost:1337";
+var setup = function(done) {
+  dbUrl = "http://localhost:1337/rpc";
+  var privValidatorPath = process.env.HOME + "/.eris/chains/myChain/priv_validator.json"
+  var fs = require('fs');
+  var privValidator = JSON.parse(fs.readFileSync(privValidatorPath));
 
   accountData = {
-    address: PUTADDRESSHERE,
-    pubKey: PUTPUBKEYHERE,
-    privKey: PUTPRIVKEYHERE
+    address: privValidator.address,
+    pubKey: privValidator.pub_key[1],
+    privKey: privValidator.priv_key[1]
   };
+
+  console.log(accountData)
 
   contractManager = erisContracts.newContractManagerDev(dbUrl, accountData);
   done()
@@ -256,7 +260,7 @@ describe("Event and transaction testing", function(){
         assert.equal(data.values.ECODE, 0);
         contract.get(function(err, data){
           assert.equal(data.values.value, '88');
-          setTimeout(function() {  
+          setTimeout(function() {
             assert.equal(eventVal, 88)
             done()
           }, 10000);
